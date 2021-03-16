@@ -1,15 +1,17 @@
 const fs = require('fs');
 const path = require('path');
+//path.join(__dirname, pathname)
 
-const csvParser = (pathname, callback) => {
+const csvParser = (pathname, res) => {
   // creates string
-  fs.readFile(path.join(__dirname, pathname), 'utf8', (err, result) => {
-    if (err) {
-      callback(err)
-    } else {
-      callback(null, result);
-    }
-  })
+  let readStream = fs.createReadStream(path.join(__dirname, pathname));
+  readStream.on('open', () => {
+    readStream.pipe(res);
+  });
+
+  readStream.on('error', (err) => {
+    res.end(err);
+  });
 };
 
 

@@ -3,6 +3,9 @@ const server = express();
 const port = 3080;
 const parse = require('../parser/csvparser.js');
 const path = '../../test.csv';
+const homedir = require('os').homedir();
+const reviewsDir = `${homedir}/Desktop/reviews.csv`;
+console.log(reviewsDir);
 
 
 server.listen(port, () => {
@@ -10,12 +13,5 @@ server.listen(port, () => {
 });
 
 server.get('/', (req, res) => {
-  parse.csvParser(path, (err, result) => {
-    debugger;
-    if (err) {
-      res.send(err);
-    } else {
-      res.send(result);
-    }
-  })
+  parse.csvParser(path, res);
 });
