@@ -14,8 +14,34 @@ const csvParser = (pathname, res) => {
     if (keys.length === 0) {
       keys = dataArr[0].split(',');
     }
-    console.log(dataArr[1].split(','));
-    res.send(dataArr[1].replace(/"/g, '').split(','));
+    let obj = {};
+    let currentArr = dataArr[1].replace(/"/g, '').split(',')
+    keys.map((key, index) => {
+      obj[key] = currentArr[index];
+    });
+
+    obj.id = Number(obj.id);
+    obj.rating = Number(obj.rating);
+
+    if (obj.recommend === 'false') {
+      obj.recommend = false;
+    } else {
+      obj.recommend = true;
+    }
+
+    if (obj.reported === 'false') {
+      obj.reported = false;
+    } else {
+      obj.reported = true;
+    }
+
+    if (obj.response.length === 0) {
+      obj.response = null;
+    }
+
+    obj.helpfulness = Number(obj.helpfulness);
+
+    res.send(obj);
   });
 
   readStream.on('error', (err) => {
