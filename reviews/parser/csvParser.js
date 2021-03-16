@@ -9,16 +9,20 @@ const csvParser = (pathname, res) => {
   readStream.on('data', (data) => {
     //readStream.pipe(res);
     readStream.pause();
-    dataArr = data.toString().split('\n');
+    let dataArr = data.toString().split('\n');
     debugger;
     if (keys.length === 0) {
       keys = dataArr[0].split(',');
     }
     let obj = {};
-    let currentArr = dataArr[1].replace(/"/g, '').split(',')
+    let currentArr = dataArr[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+     return string.replace(/"/g, '');
+    })
+
     keys.map((key, index) => {
       obj[key] = currentArr[index];
     });
+    debugger;
 
     obj.id = Number(obj.id);
     obj.rating = Number(obj.rating);

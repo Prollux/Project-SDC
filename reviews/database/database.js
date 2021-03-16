@@ -13,7 +13,7 @@ const reviews  = new mongoose.Schema({
   id: { type: Number, required: true, unique: true },
   product_id: { type: String, required: true },
   rating: { type: Number, required: true },
-  date: String,
+  date:  { type: String, required: true },
   summary: { type: String, required: true },
   body: { type: String, required: true },
   recommend: { type: Boolean, required: true },
