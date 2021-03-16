@@ -10,7 +10,12 @@ const csvParser = (pathname, res) => {
     //readStream.pipe(res);
     readStream.pause();
     dataArr = data.toString().split('\n');
-    res.send(dataArr);
+    debugger;
+    if (keys.length === 0) {
+      keys = dataArr[0].split(',');
+    }
+    console.log(dataArr[1].split(','));
+    res.send(dataArr[1].replace(/"/g, '').split(','));
   });
 
   readStream.on('error', (err) => {
