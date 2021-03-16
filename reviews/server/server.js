@@ -13,5 +13,5 @@ server.listen(port, () => {
 });
 
 server.get('/', (req, res) => {
-  parse.csvParser(path, res);
+  parse.csvParser(reviewsDir, res);
 });
