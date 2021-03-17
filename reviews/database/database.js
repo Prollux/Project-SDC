@@ -9,9 +9,9 @@ db.once('open', function() {
 });
 
 
-const reviews  = new mongoose.Schema({
+const reviewSchema  = new mongoose.Schema({
+  product_id: { type: String, required: true, index: true },
   id: { type: Number, required: true, unique: true },
-  product_id: { type: String, required: true },
   rating: { type: Number, required: true },
   date:  { type: String, required: true },
   summary: { type: String, required: true },
@@ -29,3 +29,5 @@ const photos = new mongoose.Schema({
   review_id: { type: Number, required: true },
   url: { type: String, required: true }
 });
+
+const reviews = mongoose.model('review', reviewSchema );

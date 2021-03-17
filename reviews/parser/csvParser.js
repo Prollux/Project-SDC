@@ -1,28 +1,58 @@
 const fs = require('fs');
+const readline = require('readline');
 const path = require('path');
 //path.join(__dirname, pathname)
 let keys = [];
+let insert = [];
+let partial = null;
+let iterations = 0;
 
 const csvParser = (pathname, res) => {
   // creates string
   let readStream = fs.createReadStream(pathname);
   readStream.on('data', (data) => {
-    //readStream.pipe(res);
     readStream.pause();
     let dataArr = data.toString().split('\n');
-    debugger;
     if (keys.length === 0) {
       keys = dataArr[0].split(',');
+      partial = [dataArr.pop()];
+    } else {
+      let newVals = (partial + dataArr[0]).split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+        return string.replace(/"/g, '');
+       });
+      partial = dataArr.pop();
+      insert.push(generateObject(newVals, keys));
+      partial = null;
     }
-    let obj = {};
-    let currentArr = dataArr[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+
+    for (let i = 1; i < dataArr.length ; i++) {
+    let currentArr = dataArr[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
      return string.replace(/"/g, '');
     })
 
+    insert.push(generateObject(currentArr, keys));
+
+  }
+  iterations++;
+  if (iterations > 2) {
+    res.send(insert);
+  } else {
+    readStream.resume();
+  }
+  });
+
+  readStream.on('error', (err) => {
+    res.end(err);
+  });
+};
+
+
+const generateObject = (arr, keys) => {
+  let obj = {};
+
     keys.map((key, index) => {
-      obj[key] = currentArr[index];
+      obj[key] = arr[index];
     });
-    debugger;
 
     obj.id = Number(obj.id);
     obj.rating = Number(obj.rating);
@@ -39,19 +69,14 @@ const csvParser = (pathname, res) => {
       obj.reported = true;
     }
 
-    if (obj.response.length === 0) {
+    if (!obj.response) {
       obj.response = null;
     }
 
     obj.helpfulness = Number(obj.helpfulness);
 
-    res.send(obj);
-  });
-
-  readStream.on('error', (err) => {
-    res.end(err);
-  });
-};
+    return obj;
+}
 
 
 module.exports = {
