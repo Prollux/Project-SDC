@@ -58,6 +58,62 @@ const csvParser = ((pathname, model, res) => {
   });
 });
 
+const photoParser = ((pathname, model, res) => {
+  // creates string
+  let readStream = fs.createReadStream(pathname);
+
+  readStream.on('data', (data) => {
+    readStream.pause();
+    let insert = [];
+    let dataArr = data.toString().split('\n');
+
+    if (keys.length === 0) {
+      keys = dataArr[0].split(',');
+      partial = [dataArr.pop()];
+    }
+    // } else {
+    //   let newVals = (partial + dataArr[0]).split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+    //     return string.replace(/"/g, '');
+    //    });
+    //   partial = dataArr.pop();
+    //   insert.push(generateObject(newVals, keys));
+    //   partial = null;
+    // }
+
+    for (let i = 1; i < dataArr.length -1 ; i++) {
+      let currentArr = dataArr[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+        return string.replace(/"/g, '');
+      })
+      let obj = {}
+      keys.map((key, index) => {
+        obj[key] = currentArr[index];
+      });
+
+      obj.id = Number(obj.id);
+      obj.review_id = Number(obj.review_id);
+
+      insert.push(obj);
+    }
+    let toInsert = db.convertPhotos(insert);
+    db.insertAll(model, toInsert, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`inserted ${insert.length} documents into collection`)
+        readStream.resume();
+      }
+    });
+  });
+
+  readStream.on('error', (err) => {
+    res.end(err);
+  });
+
+  readStream.on('close', () => {
+    res.end('insertion completed');
+  });
+});
+
 
 
 // helper function
@@ -97,4 +153,5 @@ const generateObject = (arr, keys) => {
 
 module.exports = {
   csvParser,
+  photoParser,
 }

@@ -24,13 +24,14 @@ const reviewSchema  = new mongoose.Schema({
   helpfulness: { type: Number, required: true }
 });
 
-const photos = new mongoose.Schema({
+const photoSchema = new mongoose.Schema({
   id: { type: Number, required: true },
-  review_id: { type: Number, required: true },
+  review_id: { type: Number, required: true, index: true},
   url: { type: String, required: true }
 });
 
-const Reviews = mongoose.model('Reviews', reviewSchema );
+const Reviews = mongoose.model('Reviews', reviewSchema);
+const Photos = mongoose.model('Photos', photoSchema);
 
 const convertAll = (arr) => {
   console.log('converting...');
@@ -53,6 +54,19 @@ const convertAll = (arr) => {
     return allreviews;
   };
 
+  const convertPhotos = (arr) => {
+    console.log('converting...');
+    const allPhotos = arr.map(obj => {
+      const photo = new Photos({
+        id: obj.id,
+        review_id: obj.review_id,
+        url: obj.url
+      })
+      return photo;
+    })
+    return allPhotos;
+  }
+
 
 const insertAll = (model, arr, callback) => {
   console.log('inserting...');
@@ -66,7 +80,9 @@ const deleteAll = (res) => {
 
 module.exports = {
   convertAll,
+  convertPhotos,
   insertAll,
   Reviews,
+  Photos,
   deleteAll,
 }
