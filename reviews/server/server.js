@@ -14,3 +14,7 @@ server.listen(port, () => {
 server.get('/', (req, res) => {
   parse.csvParser(reviewsDir, db.Reviews, res);
 });
+
+server.patch('/', (req, res) => {
+  db.deleteAll(res);
+});

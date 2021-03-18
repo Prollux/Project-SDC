@@ -4,18 +4,15 @@ const readline = require('readline');
 const path = require('path');
 //path.join(__dirname, pathname)
 let keys = [];
-let insert = [];
 let partial = null;
-let iterations = 0;
 
 const csvParser = ((pathname, model, res) => {
   // creates string
   let readStream = fs.createReadStream(pathname);
 
   readStream.on('data', (data) => {
-
     readStream.pause();
-
+    let insert = [];
     let dataArr = data.toString().split('\n');
 
     if (keys.length === 0) {
@@ -35,14 +32,17 @@ const csvParser = ((pathname, model, res) => {
         return string.replace(/"/g, '');
       })
       let insertObj = generateObject(currentArr, keys);
-      insert.push();
+      insert.push(insertObj);
 
     }
+    let toInsert = db.convertAll(insert);
+    debugger;
 
-    db.insertAll(model, db.convertAll(insert), (err) => {
+    db.insertAll(model, toInsert, (err) => {
       if (err) {
         console.error(err);
       } else {
+        debugger;
         console.log(`inserted ${insert.length} documents into collection`)
         readStream.resume()
       }
