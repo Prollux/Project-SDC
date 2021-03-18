@@ -34,7 +34,6 @@ const Reviews = mongoose.model('Reviews', reviewSchema );
 
 const convertAll = (arr) => {
   console.log('converting...');
-  debugger;
   const allreviews = arr.map(obj => {
     const review = new Reviews({
       product_id: obj.product_id,
@@ -57,7 +56,6 @@ const convertAll = (arr) => {
 
 const insertAll = (model, arr, callback) => {
   console.log('inserting...');
-  debugger;
   model.collection.insertMany(arr, callback);
 };
 

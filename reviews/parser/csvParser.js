@@ -18,16 +18,17 @@ const csvParser = ((pathname, model, res) => {
     if (keys.length === 0) {
       keys = dataArr[0].split(',');
       partial = [dataArr.pop()];
-    } else {
-      let newVals = (partial + dataArr[0]).split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
-        return string.replace(/"/g, '');
-       });
-      partial = dataArr.pop();
-      insert.push(generateObject(newVals, keys));
-      partial = null;
     }
+    // } else {
+    //   let newVals = (partial + dataArr[0]).split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+    //     return string.replace(/"/g, '');
+    //    });
+    //   partial = dataArr.pop();
+    //   insert.push(generateObject(newVals, keys));
+    //   partial = null;
+    // }
 
-    for (let i = 1; i < dataArr.length ; i++) {
+    for (let i = 1; i < dataArr.length -1 ; i++) {
       let currentArr = dataArr[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
         return string.replace(/"/g, '');
       })
@@ -36,13 +37,11 @@ const csvParser = ((pathname, model, res) => {
 
     }
     let toInsert = db.convertAll(insert);
-    debugger;
 
     db.insertAll(model, toInsert, (err) => {
       if (err) {
         console.error(err);
       } else {
-        debugger;
         console.log(`inserted ${insert.length} documents into collection`)
         readStream.resume()
       }
