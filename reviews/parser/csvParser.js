@@ -1,3 +1,4 @@
+const db = require('../database/database.js');
 const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
@@ -7,12 +8,16 @@ let insert = [];
 let partial = null;
 let iterations = 0;
 
-const csvParser = (pathname, res) => {
+const csvParser = ((pathname, model, res) => {
   // creates string
   let readStream = fs.createReadStream(pathname);
+
   readStream.on('data', (data) => {
+
     readStream.pause();
+
     let dataArr = data.toString().split('\n');
+
     if (keys.length === 0) {
       keys = dataArr[0].split(',');
       partial = [dataArr.pop()];
@@ -26,25 +31,37 @@ const csvParser = (pathname, res) => {
     }
 
     for (let i = 1; i < dataArr.length ; i++) {
-    let currentArr = dataArr[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
-     return string.replace(/"/g, '');
-    })
+      let currentArr = dataArr[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(string => {
+        return string.replace(/"/g, '');
+      })
+      let insertObj = generateObject(currentArr, keys);
+      insert.push();
 
-    insert.push(generateObject(currentArr, keys));
+    }
 
-  }
-  iterations++;
-  if (iterations > 2) {
-    res.send(insert);
-  } else {
-    readStream.resume();
-  }
+    db.insertAll(model, db.convertAll(insert), (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`inserted ${insert.length} documents into collection`)
+        readStream.resume()
+      }
+    });
   });
+    //readStream.resume();
 
   readStream.on('error', (err) => {
     res.end(err);
   });
-};
+
+  readStream.on('close', () => {
+    res.end('insertion completed');
+  });
+});
+
+
+
+// helper function
 
 
 const generateObject = (arr, keys) => {

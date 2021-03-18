@@ -30,4 +30,34 @@ const photos = new mongoose.Schema({
   url: { type: String, required: true }
 });
 
-const reviews = mongoose.model('review', reviewSchema );
+const Reviews = mongoose.model('Reviews', reviewSchema );
+
+const convertAll = (arr) => {
+  const allreviews = arr.map(obj => {
+    const review = new Reviews({
+      product_id: obj.product_id,
+      id: obj.id,
+      rating: obj.rating,
+      date: obj.date,
+      summary: obj.summary,
+      recommend: obj.recommend,
+      reported: obj.reported,
+      reviewer_name: obj.reviewer_name,
+      reviewer_email: obj.reviewer_email,
+      response: obj.response,
+      helpfulness: obj.helpfulness
+    });
+  });
+    return allreviews;
+  };
+
+
+const insertAll = (model, arr, callback) => {
+  model.collection.insert(arr, callback);
+};
+
+module.exports = {
+  convertAll,
+  insertAll,
+  Reviews,
+}
