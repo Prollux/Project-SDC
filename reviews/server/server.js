@@ -15,9 +15,10 @@ server.listen(port, () => {
 
 server.get('/reviews', (req, res) => {
   data = req.query;
-  if (!data) {
-    data = {reviews: '24'};
+  if (!data.product_id) {
+    data = {product_id: '24'};
   };
+  console.log(data);
   db.getReviews(data, (err, result) => {
     if (err) {
       res.status(404).send(err);

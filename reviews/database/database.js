@@ -79,30 +79,19 @@ const insertAll = (model, arr, callback) => {
 
 /*------------------------------------DATABASE QUERIES------------------------*/
 
-const getReviews = (data, callback) => {
-  let reviews;
-  Reviews.find(data, (err, rdata) => {
-    if (err) {
-      callback(404);
-    } else {
-      data.map(review => {
-
-      })
-    }
-  })
+const getReviews = async (data, callback) => {
+  console.log('data');
+  let reviews = await Reviews.find(data).lean();
+  reviews = await combineData(reviews);
+  callback(null, reviews);
 }
 
-const getPhotosbyId = (id, callback) => {
-  Photos.find({review_id: id} , (err, results) => {
-    if (err) {
-      callback([]);
-    } else {
-      let urlArr = results.map(photo => {
-        return photo.url;
-      });
-      callback(urlArr);
-    }
-  })
+
+const getPhotosbyId = async (id) => {
+  console.log('getPhotosbyId invoked');
+  let urls = await Photos.find({"review_id": id}).lean();
+  urls = urls.map(photo => photo.url);
+    return urls;
 }
 
 
@@ -111,8 +100,14 @@ const getPhotosbyId = (id, callback) => {
 /*-------------------------------ASSEMBLY FUNCTIONS--------------------------*/
 
 
-const combineData = (reviewsArr, photosArr) => {
-
+const combineData = async (reviewsArr, callback) => {
+  console.log(reviewsArr);
+  let aggregate = await Promise.all(reviewsArr.map(async (review) => {
+    let photos = await getPhotosbyId(review.id);
+    review.photos = photos;
+    return review;
+  }))
+  return aggregate;
 }
 
 module.exports = {
