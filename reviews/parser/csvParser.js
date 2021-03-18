@@ -6,7 +6,7 @@ const path = require('path');
 let keys = [];
 let partial = null;
 
-const csvParser = ((pathname, model, res) => {
+const ReviewParser = ((pathname, model, res) => {
   // creates string
   let readStream = fs.createReadStream(pathname);
 
@@ -36,7 +36,7 @@ const csvParser = ((pathname, model, res) => {
       insert.push(insertObj);
 
     }
-    let toInsert = db.convertAll(insert);
+    let toInsert = db.convertReviews(insert);
 
     db.insertAll(model, toInsert, (err) => {
       if (err) {
@@ -152,6 +152,6 @@ const generateObject = (arr, keys) => {
 
 
 module.exports = {
-  csvParser,
+  ReviewParser,
   photoParser,
 }

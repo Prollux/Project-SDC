@@ -8,12 +8,23 @@ const reviewsDir = `${homedir}/Desktop/reviews.csv`;
 const photosDir = `${homedir}/Desktop/reviews_photos.csv`;
 const db = require('../database/database.js');
 
+server.use(express.json());
 server.listen(port, () => {
   console.log(`server is listening on port ${port}`)
 });
 
 server.get('/reviews', (req, res) => {
-  parse.csvParser(reviewsDir, db.Reviews, res);
+  data = req.query;
+  if (!data) {
+    data = {reviews: '24'};
+  };
+  db.getReviews(data, (err, result) => {
+    if (err) {
+      res.status(404).send(err);
+    } else {
+      res.send(result);
+    }
+  });
 });
 
 server.get('/photos', (req, res) => {

@@ -33,7 +33,7 @@ const photoSchema = new mongoose.Schema({
 const Reviews = mongoose.model('Reviews', reviewSchema);
 const Photos = mongoose.model('Photos', photoSchema);
 
-const convertAll = (arr) => {
+const convertReviews = (arr) => {
   console.log('converting...');
   const allreviews = arr.map(obj => {
     const review = new Reviews({
@@ -73,16 +73,22 @@ const insertAll = (model, arr, callback) => {
   model.collection.insertMany(arr, callback);
 };
 
-const deleteAll = (res) => {
-  Reviews.collection.deleteMany();
-  res.send('done');
-};
+const getReviews = (data, callback) => {
+  Reviews.find(data, (err, result) => {
+    if (err) {
+      callback(404);
+    } else {
+      callback(result);
+    }
+  })
+}
+
 
 module.exports = {
-  convertAll,
+  convertReviews,
   convertPhotos,
   insertAll,
+  getReviews,
   Reviews,
   Photos,
-  deleteAll,
 }
