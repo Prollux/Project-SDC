@@ -33,6 +33,8 @@ const photoSchema = new mongoose.Schema({
 const Reviews = mongoose.model('Reviews', reviewSchema);
 const Photos = mongoose.model('Photos', photoSchema);
 
+/*--------------------------CSV PARSER FUNCTIONS----------------------------*/
+
 const convertReviews = (arr) => {
   console.log('converting...');
   const allreviews = arr.map(obj => {
@@ -68,27 +70,57 @@ const convertReviews = (arr) => {
   }
 
 
+
 const insertAll = (model, arr, callback) => {
   console.log('inserting...');
   model.collection.insertMany(arr, callback);
 };
 
+
+/*------------------------------------DATABASE QUERIES------------------------*/
+
 const getReviews = (data, callback) => {
-  Reviews.find(data, (err, result) => {
+  let reviews;
+  Reviews.find(data, (err, rdata) => {
     if (err) {
       callback(404);
     } else {
-      callback(result);
+      data.map(review => {
+
+      })
     }
   })
 }
 
+const getPhotosbyId = (id, callback) => {
+  Photos.find({review_id: id} , (err, results) => {
+    if (err) {
+      callback([]);
+    } else {
+      let urlArr = results.map(photo => {
+        return photo.url;
+      });
+      callback(urlArr);
+    }
+  })
+}
+
+
+
+
+/*-------------------------------ASSEMBLY FUNCTIONS--------------------------*/
+
+
+const combineData = (reviewsArr, photosArr) => {
+
+}
 
 module.exports = {
   convertReviews,
   convertPhotos,
   insertAll,
   getReviews,
+  getPhotosbyId,
   Reviews,
   Photos,
 }

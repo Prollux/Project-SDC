@@ -28,7 +28,10 @@ server.get('/reviews', (req, res) => {
 });
 
 server.get('/photos', (req, res) => {
-  parse.photoParser(photosDir, db.Photos, res);
+  let id = Number(req.query.review_id)
+  db.getPhotosbyId(id, (result) => {
+    res.send(result);
+  });
 });
 
 server.patch('/reviews', (req, res) => {
