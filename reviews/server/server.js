@@ -18,6 +18,11 @@ server.listen(port, () => {
 });
 
 server.get('/reviews', (req, res) => {
+  count = req.query.count || 5;
+  if (count > 100) {
+    count = 100;
+  }
+  page = Number(req.query.page) || 0;
   data = {product_id: req.query.product_id};
   if (!data.product_id) {
     data = {product_id: '24'};
@@ -29,16 +34,22 @@ server.get('/reviews', (req, res) => {
     } else {
       switch(req.query.sort) {
         case "helpful":
-          res.send(sortBy.helpfulness(result));
+          result = sortBy.helpfulness(result);
           break;
 
         case "newest":
-          res.send(sortBy.newest(result));
+          result = sortBy.newest(result);
           break;
 
         default:
-          res.send(sortBy.relevant(result));
+          result = sortBy.relevant(result);
       }
+      res.send({
+        product: data.product_id,
+        page: page,
+        count: Number(count),
+        results: result.slice(count * page, (count * page) + count)
+        })
     }
   });
 });
