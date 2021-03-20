@@ -4,6 +4,7 @@ const port = 3080;
 const db = require('../database/database.js');
 const parse = require('../parser/csvParser.js');
 const path = '../../test.csv';
+const sortBy = require('../sorters/sortMethods.js');
 const homedir = require('os').homedir();
 const reviewsDir = `${homedir}/Desktop/reviews.csv`;
 const photosDir = `${homedir}/Desktop/reviews_photos.csv`;
@@ -26,7 +27,9 @@ server.get('/reviews', (req, res) => {
     if (err) {
       res.status(404).send(err);
     } else {
-      res.send(result);
+      console.log(sortBy);
+      let sorted = sortBy.helpfulness(result);
+      res.send(sorted);
     }
   });
 });
