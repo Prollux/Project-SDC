@@ -18,7 +18,7 @@ server.listen(port, () => {
 });
 
 server.get('/reviews', (req, res) => {
-  data = req.query;
+  data = {product_id: req.query.product_id};
   if (!data.product_id) {
     data = {product_id: '24'};
   };
@@ -27,8 +27,18 @@ server.get('/reviews', (req, res) => {
     if (err) {
       res.status(404).send(err);
     } else {
-      let sorted = sortBy.newest(result);
-      res.send(sorted);
+      switch(req.query.sort) {
+        case "helpful":
+          res.send(sortBy.helpfulness(result));
+          break;
+
+        case "newest":
+          res.send(sortBy.newest(result));
+          break;
+
+        default:
+          res.send(sortBy.relevant(result));
+      }
     }
   });
 });
