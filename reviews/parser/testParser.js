@@ -1,2 +1,0 @@
-
-cosnt testParser = (pathname)

@@ -8,6 +8,13 @@ db.once('open', function() {
   console.log('successfully connected to database');
 });
 
+const characteristicSchema = new mongoose.Schema({
+  id: {type: Number, index: true},
+  product_id: {type: String, index: true, default: null},
+  name: {type: String, default: null},
+  value: Number
+})
+
 
 const reviewSchema  = new mongoose.Schema({
   product_id: { type: String, required: true, index: true },
@@ -32,11 +39,11 @@ const photoSchema = new mongoose.Schema({
 
 const Reviews = mongoose.model('Reviews', reviewSchema);
 const Photos = mongoose.model('Photos', photoSchema);
+const Characteristics = mongoose.model('Characteristics', characteristicSchema);
 
 /*--------------------------CSV PARSER FUNCTIONS----------------------------*/
 
 const convertReviews = (arr) => {
-  console.log('converting...');
   const allreviews = arr.map(obj => {
     const review = new Reviews({
       product_id: obj.product_id,
@@ -57,7 +64,6 @@ const convertReviews = (arr) => {
   };
 
   const convertPhotos = (arr) => {
-    console.log('converting...');
     const allPhotos = arr.map(obj => {
       const photo = new Photos({
         id: obj.id,
@@ -69,18 +75,28 @@ const convertReviews = (arr) => {
     return allPhotos;
   }
 
+  const convertChars = (arr) => {
+    const allChars = arr.map(obj => {
+      const char = new Characteristics({
+        id: obj.id,
+        value: obj.value,
+        name: obj.name
+      })
+      return char;
+    })
+    return allChars;
+  }
+
 
 
 const insertAll = (model, arr, callback) => {
-  console.log('inserting...');
   model.collection.insertMany(arr, callback);
 };
 
 
-/*------------------------------------DATABASE QUERIES------------------------*/
+/*--------------------------------DATABASE QUERIES---------------------------*/
 
 const getReviews = async (data, callback) => {
-  console.log('data');
   let reviews = await Reviews.find(data).lean();
   reviews = await combineData(reviews);
   callback(null, reviews);
@@ -88,20 +104,28 @@ const getReviews = async (data, callback) => {
 
 
 const getPhotosbyId = async (id) => {
-  console.log('getPhotosbyId invoked');
   let urls = await Photos.find({"review_id": id}).lean();
   urls = urls.map(photo => photo.url);
     return urls;
 }
 
+const getMeta = (id, callback) => {
+  Characteristics.find({product_id: id}, (err, result) => {
+    if (err) {
+      callback(err)
+    } else {
+      callback(null, result);
+    }
+  })
+}
 
 
 
-/*-------------------------------ASSEMBLY FUNCTIONS--------------------------*/
+
+/*-----------------------------ASSEMBLY FUNCTIONS-----------------------------*/
 
 
 const combineData = async (reviewsArr, callback) => {
-  console.log(reviewsArr);
   let aggregate = await Promise.all(reviewsArr.map(async (review) => {
     let photos = await getPhotosbyId(review.id);
     review.photos = photos;
@@ -110,12 +134,17 @@ const combineData = async (reviewsArr, callback) => {
   return aggregate;
 }
 
+
+/*------------------------------------EXPORTS---------------------------------*/
 module.exports = {
   convertReviews,
   convertPhotos,
+  convertChars,
   insertAll,
   getReviews,
   getPhotosbyId,
+  getMeta,
   Reviews,
   Photos,
+  Characteristics,
 }
