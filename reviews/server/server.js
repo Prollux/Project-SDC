@@ -27,8 +27,7 @@ server.get('/reviews', (req, res) => {
     if (err) {
       res.status(404).send(err);
     } else {
-      console.log(sortBy);
-      let sorted = sortBy.helpfulness(result);
+      let sorted = sortBy.newest(result);
       res.send(sorted);
     }
   });
