@@ -73,6 +73,17 @@ server.get('/reviews/meta', (req, res) => {
   });
 });
 
+server.post('/reviews', (req, res) => {
+  let data = req.body;
+  db.AddReview(data, (err) => {
+    if (err) {
+      res.status(422).end()
+    } else {
+      res.status(201).end()
+    }
+  })
+})
+
 server.patch('/meta', (req, res) => {
   parse.metaParser(metaDir, db.MetaData, res);
 })

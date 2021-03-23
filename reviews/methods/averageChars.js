@@ -1,9 +1,18 @@
 const averageChars = (charArr) => {
+  debugger;
   let result = {characteristics: {}};
   let counts = {};
   review_ids = [];
   result.recommended = {true: 0, false: 0};
   result.ratings = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+  const charIDs = {
+    Quality: 5,
+    length: 11,
+    Fit: 10,
+    Size: 14,
+    Comfort: 3,
+    Width: 15,
+  }
 
 
   charArr.forEach(obj => {
@@ -39,7 +48,10 @@ const averageChars = (charArr) => {
 
   for (key in result) {
     if (result[key].value) {
-      result.characteristics[key] = (result[key].value / counts[key]).toString();
+      result.characteristics[key] = {
+        value: (result[key].value / counts[key]).toString(),
+        id: charIDs[key]
+      };
       delete result[key];
     }
   }

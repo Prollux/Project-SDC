@@ -8,6 +8,9 @@ db.once('open', function() {
   console.log('successfully connected to database');
 });
 
+
+/*-----------------------------Schemas---------------------------*/
+
 const metaSchema = new mongoose.Schema({
   product_id: { type: Number, index: true },
   review_id: { type: Number, index: true },
@@ -39,7 +42,7 @@ const reviewSchema  = new mongoose.Schema({
 const Reviews = mongoose.model('Reviews', reviewSchema);
 const MetaData = mongoose.model('MetaData', metaSchema);
 
-/*--------------------------CSV PARSER FUNCTIONS----------------------------*/
+/*--------------------------CSV PARSER FUNCTIONS------------------*/
 
 const convertReviews = (arr) => {
   const allreviews = arr.map(obj => {
@@ -86,7 +89,7 @@ const insertAll = (model, arr, callback) => {
 };
 
 
-/*--------------------------------DATABASE QUERIES---------------------------*/
+/*--------------------------DATABASE QUERIES----------------------*/
 
 const getReviews = async (data, callback) => {
   Reviews.find(data, (err, result) => {
@@ -110,28 +113,79 @@ const getMeta = (id, callback) => {
 }
 
 
+const AddReview = async (obj, callback) => {
+  const charIDs = {
+    '5': 'Quality',
+    '11': 'Length',
+    '10': 'Fit',
+    '14': 'Size',
+    '3': 'Comfort',
+    '15': 'Width'
+  }
 
+  let idObj = await Reviews.find().sort({review_id: -1}).limit(1).lean();
+  let newId = idObj[0].review_id + 1;
+  let newReview = new Reviews({
+    product_id: obj.product_id,
+    review_id: newId,
+    rating: +obj.rating,
+    date: new Date().toString().substring(3, 15),
+    summary: obj.summary,
+    body: obj.body,
+    recommend: JSON.parse(obj.recommend),
+    reported: obj.reported,
+    reviewer_name: obj.name,
+    reviewer_email: obj.email,
+    response: null,
+    helpfulness: 0,
+    photos: obj.photos
+  })
 
-/*-----------------------------ASSEMBLY FUNCTIONS-----------------------------*/
+  let meta = Object.keys(obj.characteristics).map(key => {
+    let newMeta = new MetaData({
+      product_id: +obj.product_id,
+      value: obj.characteristics[key].value,
+      name: charIDs[key],
+      review_id: newId,
+      rating: obj.rating,
+      recommend: JSON.parse(obj.recommend)
+    });
 
-
-const combineData = async (reviewsArr, callback) => {
-  let aggregate = await Promise.all(reviewsArr.map(async (review) => {
-    let photos = await getPhotosbyId(review.id);
-    review.photos = photos;
-    return review;
-  }))
-  return aggregate;
+    return newMeta;
+  })
+  Reviews.create(newReview, (err) => {
+    if (err) {
+      debugger;
+      callback(err)
+      } else {
+        MetaData.insertMany(meta, (err) => {
+          if (err) {
+            debugger;
+          callback(err)
+        } else {
+          callback(null)
+        }
+      })
+    }
+  })
 }
 
 
-/*------------------------------------EXPORTS---------------------------------*/
+
+
+
+/*-----------------------ASSEMBLY FUNCTIONS-----------------------*/
+
+
+
+/*----------------------------EXPORTS-----------------------------*/
 module.exports = {
   convertReviews,
   convertMeta,
   insertAll,
   getReviews,
   getMeta,
+  AddReview,
   Reviews,
   MetaData,
 }
