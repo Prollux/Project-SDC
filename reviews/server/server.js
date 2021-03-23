@@ -65,7 +65,7 @@ server.get('/reviews/meta', (req, res) => {
     if (err) {
       res.status(404).send(err);
     } else {
-      result = {product: id,
+      result = {product_id: id,
                 ratings: shape.averageChars(result)
                };
       res.status(201).send(result);

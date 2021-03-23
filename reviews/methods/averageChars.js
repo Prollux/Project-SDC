@@ -1,18 +1,16 @@
 const averageChars = (charArr) => {
-  debugger;
-  let result = {};
+  let result = {characteristics: {}};
   let counts = {};
   review_ids = [];
-  result.recommend = {true: 0, false: 0};
-  result.rating = 0;
-  counts.rating = 0;
+  result.recommended = {true: 0, false: 0};
+  result.ratings = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
 
 
   charArr.forEach(obj => {
     if (!review_ids.includes(obj.review_id)) {
       review_ids.push(obj.review_id);
       if (!result[obj.name]) {
-        result[obj.name] = {id : obj.id,
+        result[obj.name] = {
                             value : Number(obj.value)};
         counts[obj.name] = 1;
       } else {
@@ -20,15 +18,16 @@ const averageChars = (charArr) => {
         counts[obj.name]++;
       }
       if (obj.recommend) {
-        result.recommend.true++;
+        result.recommended.true++;
       } else {
-        result.recommend.false++;
+        result.recommended.false++;
       }
-      result.rating += obj.rating;
-      counts.rating += 1
+      if (obj.rating) {
+      result.ratings[`${obj.rating}`] += 1;
+      }
     } else {
       if (!result[obj.name]) {
-        result[obj.name] = {id : obj.id,
+        result[obj.name] = {
                           value : Number(obj.value)};
         counts[obj.name] = 1;
       } else {
@@ -39,8 +38,9 @@ const averageChars = (charArr) => {
   })
 
   for (key in result) {
-    if (typeof result[key] !== 'object') {
-      result[key] = result[key].value / counts[key];
+    if (result[key].value) {
+      result.characteristics[key] = (result[key].value / counts[key]).toString();
+      delete result[key];
     }
   }
   return result;
