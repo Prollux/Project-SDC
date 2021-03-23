@@ -4,12 +4,11 @@ const port = 3080;
 const db = require('../database/database.js');
 const parse = require('../parser/csvParser.js');
 const path = '../../test.csv';
-const sortBy = require('../sorters/sortMethods.js');
+const sortBy = require('../methods/sortMethods.js');
+const shape = require('../methods/averageChars.js');
 const homedir = require('os').homedir();
-const reviewsDir = `${homedir}/Desktop/reviews.csv`;
-const photosDir = `${homedir}/Desktop/reviews_photos.csv`;
-const charDir = `${homedir}/Desktop/characteristics.csv`;
-const charsTwo = `${homedir}/Desktop/characteristic_reviews.csv`;
+const reviewsDir = `${homedir}/Desktop/CSVs/reviews.csv`;
+const metaDir = `${homedir}/Desktop/CSVs/meta.csv`;
 
 
 server.use(express.json());
@@ -23,9 +22,9 @@ server.get('/reviews', (req, res) => {
     count = 100;
   }
   page = Number(req.query.page) || 0;
-  data = {product_id: req.query.product_id};
+  data = {product_id: +req.query.product_id};
   if (!data.product_id) {
-    data = {product_id: '24'};
+    data = {product_id: 24};
   };
   console.log(data);
   db.getReviews(data, (err, result) => {
@@ -66,15 +65,18 @@ server.get('/reviews/meta', (req, res) => {
     if (err) {
       res.status(404).send(err);
     } else {
+      result = {product: id,
+                ratings: shape.averageChars(result)
+               };
       res.status(201).send(result);
     }
   });
 });
 
-server.patch('/characteristics', (req, res) => {
-  parse.charParser(charsTwo, db.Characteristics, res);
+server.patch('/meta', (req, res) => {
+  parse.metaParser(metaDir, db.MetaData, res);
 })
 
-server.patch('/chartwo', (req, res) => {
-  parse.updateChars(charDir, db.Characteristics, res);
+server.patch('/reviews', (req, res) => {
+  parse.ReviewParser(reviewsDir, db.Reviews, res);
 })

@@ -8,17 +8,19 @@ db.once('open', function() {
   console.log('successfully connected to database');
 });
 
-const characteristicSchema = new mongoose.Schema({
-  id: {type: Number, index: true},
-  product_id: {type: String, index: true, default: null},
-  name: {type: String, default: null},
-  value: Number
+const metaSchema = new mongoose.Schema({
+  product_id: { type: Number, index: true },
+  review_id: { type: Number, index: true },
+  name: String,
+  value: Number,
+  rating: Number,
+  recommend: Boolean
 })
 
 
 const reviewSchema  = new mongoose.Schema({
-  product_id: { type: String, required: true, index: true },
-  id: { type: Number, required: true, unique: true },
+  product_id: { type: Number, required: true, index: true },
+  review_id: { type: Number, required: true, unique: true },
   rating: { type: Number, required: true },
   date:  { type: String, required: true },
   summary: { type: String, required: true },
@@ -28,59 +30,49 @@ const reviewSchema  = new mongoose.Schema({
   reviewer_name: { type: String, required: true },
   reviewer_email: String,
   response: String,
-  helpfulness: { type: Number, required: true }
-});
-
-const photoSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
-  review_id: { type: Number, required: true, index: true},
-  url: { type: String, required: true }
+  helpfulness: { type: Number, required: true },
+  photos: [
+    { url: String}
+  ]
 });
 
 const Reviews = mongoose.model('Reviews', reviewSchema);
-const Photos = mongoose.model('Photos', photoSchema);
-const Characteristics = mongoose.model('Characteristics', characteristicSchema);
+const MetaData = mongoose.model('MetaData', metaSchema);
 
 /*--------------------------CSV PARSER FUNCTIONS----------------------------*/
 
 const convertReviews = (arr) => {
   const allreviews = arr.map(obj => {
     const review = new Reviews({
-      product_id: obj.product_id,
-      id: obj.id,
+      product_id: +obj.product_id,
+      review_id: obj.id,
       rating: obj.rating,
       date: obj.date,
       summary: obj.summary,
+      body: obj.body,
       recommend: obj.recommend,
       reported: obj.reported,
       reviewer_name: obj.reviewer_name,
       reviewer_email: obj.reviewer_email,
       response: obj.response,
-      helpfulness: obj.helpfulness
+      helpfulness: obj.helpfulness,
+      photos: obj.photos
     });
     return review;
   });
     return allreviews;
   };
 
-  const convertPhotos = (arr) => {
-    const allPhotos = arr.map(obj => {
-      const photo = new Photos({
-        id: obj.id,
-        review_id: obj.review_id,
-        url: obj.url
-      })
-      return photo;
-    })
-    return allPhotos;
-  }
 
-  const convertChars = (arr) => {
+  const convertMeta = (arr) => {
     const allChars = arr.map(obj => {
-      const char = new Characteristics({
-        id: obj.id,
+      const char = new MetaData({
+        product_id: obj.product_id,
         value: obj.value,
-        name: obj.name
+        name: obj.name,
+        review_id: obj.review_id,
+        rating: obj.rating,
+        recommend: obj.recommend
       })
       return char;
     })
@@ -97,26 +89,24 @@ const insertAll = (model, arr, callback) => {
 /*--------------------------------DATABASE QUERIES---------------------------*/
 
 const getReviews = async (data, callback) => {
-  let reviews = await Reviews.find(data).lean();
-  reviews = await combineData(reviews);
-  callback(null, reviews);
+  Reviews.find(data, (err, result) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, result);
+    }
+  }).lean()
 }
 
-
-const getPhotosbyId = async (id) => {
-  let urls = await Photos.find({"review_id": id}).lean();
-  urls = urls.map(photo => photo.url);
-    return urls;
-}
 
 const getMeta = (id, callback) => {
-  Characteristics.find({product_id: id}, (err, result) => {
+ MetaData.find({product_id: id}, (err, result) => {
     if (err) {
       callback(err)
     } else {
       callback(null, result);
     }
-  })
+  }).lean()
 }
 
 
@@ -138,13 +128,10 @@ const combineData = async (reviewsArr, callback) => {
 /*------------------------------------EXPORTS---------------------------------*/
 module.exports = {
   convertReviews,
-  convertPhotos,
-  convertChars,
+  convertMeta,
   insertAll,
   getReviews,
-  getPhotosbyId,
   getMeta,
   Reviews,
-  Photos,
-  Characteristics,
+  MetaData,
 }
