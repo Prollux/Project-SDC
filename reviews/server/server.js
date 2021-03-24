@@ -8,7 +8,7 @@ const sortBy = require('../methods/sortMethods.js');
 const shape = require('../methods/averageChars.js');
 const homedir = require('os').homedir();
 const reviewsDir = `${homedir}/Desktop/CSVs/reviews.csv`;
-const metaDir = `${homedir}/Desktop/CSVs/meta.csv`;
+const metaDir = `${homedir}/Desktop/CSVs/newMeta.csv`;
 
 
 server.use(express.json());
@@ -26,7 +26,6 @@ server.get('/reviews', (req, res) => {
   if (!data.product_id) {
     data = {product_id: 24};
   };
-  console.log(data);
   db.getReviews(data, (err, result) => {
     if (err) {
       res.status(404).send(err);

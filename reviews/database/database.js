@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/reviewData',
+mongoose.connect('mongodb://13.58.214.183:27017/reviewData',
 {useNewUrlParser: true, useUnifiedTopology: true});
+//mongodb://localhost/reviewData
+// /mongodb://18.188.29.128:27017/reviewData
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -155,12 +157,10 @@ const AddReview = async (obj, callback) => {
   })
   Reviews.create(newReview, (err) => {
     if (err) {
-      debugger;
       callback(err)
       } else {
         MetaData.insertMany(meta, (err) => {
           if (err) {
-            debugger;
           callback(err)
         } else {
           callback(null)

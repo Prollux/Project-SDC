@@ -1,5 +1,4 @@
 const averageChars = (charArr) => {
-  debugger;
   let result = {characteristics: {}};
   let counts = {};
   review_ids = [];
