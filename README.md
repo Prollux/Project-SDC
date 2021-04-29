@@ -1,6 +1,3 @@
-# SDC
-Systems Design Capstone
-
 ### Goal
 Operationilize and scale a web app.
 
