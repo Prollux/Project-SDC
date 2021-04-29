@@ -13,7 +13,6 @@ const averageChars = (charArr) => {
     Width: 15,
   }
 
-
   charArr.forEach(obj => {
     if (!review_ids.includes(obj.review_id)) {
       review_ids.push(obj.review_id);

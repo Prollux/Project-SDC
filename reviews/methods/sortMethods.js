@@ -13,7 +13,6 @@ const relevant = (reviewsArr) => {
   return reviewsArr.sort((a, b) => (intByDate(a.date) - a.helpfulness * 7) - (intByDate(b.date)) - b.helpfulness * 7);
 }
 
-
 const monthVals = {
   Jan: 1,
   Feb: 2,
@@ -41,7 +40,6 @@ const intByDate = (str) => {
   let reviewDate = convertandReduce(new Date(str).toString().split(' ').slice(1, 4));
   return currentDate - reviewDate;
 }
-
 
 module.exports = {
   helpfulness,

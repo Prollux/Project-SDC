@@ -6,14 +6,20 @@ const parse = require('../parser/csvParser.js');
 const path = '../../test.csv';
 const sortBy = require('../methods/sortMethods.js');
 const shape = require('../methods/averageChars.js');
+
+/* used for initial local import
 const homedir = require('os').homedir();
 const reviewsDir = `${homedir}/Desktop/CSVs/reviews.csv`;
 const metaDir = `${homedir}/Desktop/CSVs/newMeta.csv`;
-
+*/
 
 server.use(express.json());
 server.listen(port, () => {
   console.log(`server is listening on port ${port}`)
+});
+
+server.get('/loaderio-a39a48cb24da6f46cf8dd3c2fc86f14a', (req, res) => {
+  res.send('loaderio-a39a48cb24da6f46cf8dd3c2fc86f14a');
 });
 
 server.get('/reviews', (req, res) => {
@@ -52,10 +58,7 @@ server.get('/reviews', (req, res) => {
   });
 });
 
-
-
 server.get('/reviews/meta', (req, res) => {
-  //do something
   id = req.query.product_id;
   if (!id) {
     id ='24';
@@ -83,6 +86,7 @@ server.post('/reviews', (req, res) => {
   })
 })
 
+/* --- used for local import ---
 server.patch('/meta', (req, res) => {
   parse.metaParser(metaDir, db.MetaData, res);
 })
@@ -90,3 +94,4 @@ server.patch('/meta', (req, res) => {
 server.patch('/reviews', (req, res) => {
   parse.ReviewParser(reviewsDir, db.Reviews, res);
 })
+*/
